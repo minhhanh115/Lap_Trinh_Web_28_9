@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thế Giới Thú Cưng</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        
+        .card {
+            background: #ffffff;
+            padding: 40px 30px;
+            border-radius: 24px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+
+        h2 {
+            color: #ff6b81;
+            margin-top: 0;
+            font-size: 28px;
+        }
+
+        .btn {
+            background-color: #1dd1a1;
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            font-size: 16px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: transform 0.2s, background-color 0.2s;
+            box-shadow: 0 4px 15px rgba(29, 209, 161, 0.4);
+        }
+        
+        .btn:hover {
+            background-color: #10ac84;
+            transform: scale(1.05);
+        }
+
+        #loi-chao {
+            color: #576574;
+            font-size: 18px;
+            margin: 20px 0;
+            font-style: italic;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        li {
+            background: #f1f2f6;
+            margin: 12px 0;
+            padding: 15px;
+            border-radius: 16px;
+            font-size: 20px;
+            color: #2f3542;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            transition: transform 0.2s;
+        }
+        
+        li:hover {
+            transform: translateY(-3px);
+            background: #dfe4ea;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2>🐾 Thế Giới Thú Cưng 🐾</h2>
+        
+        <button class="btn" onclick="goiAPI()" id="nut-bam">Gọi các bé ra nào! 🍖</button>
+        
+        <div id="loi-chao"></div>
+        <ul id="danh-sach"></ul>
+    </div>
+
+    <script>
+        function chonBieuTuong(ten) {
+            const chuoiThuong = ten.toLowerCase();
+            if (chuoiThuong.includes("mèo")) return "🐱";
+            if (chuoiThuong.includes("chó")) return "🐶";
+            if (chuoiThuong.includes("chim")) return "🐦";
+            return "🐾";
+        }
+
+        function goiAPI() {
+            const nutBam = document.getElementById('nut-bam');
+            nutBam.innerText = "Đang tìm kiếm... 🔍";
+
+            fetch('/api/co-ban')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('loi-chao').innerText = "✨ " + data.loi_chao + " ✨";
+                    
+                    let htmlDanhSach = '';
+                    for (let i = 0; i < data.danh_sach.length; i++) {
+                        let tenConVat = data.danh_sach[i];
+                        let icon = chonBieuTuong(tenConVat);
+                        htmlDanhSach += '<li>' + icon + ' ' + tenConVat + '</li>';
+                    }
+                    document.getElementById('danh-sach').innerHTML = htmlDanhSach;
+
+                    nutBam.innerText = "Đã tìm thấy! 🎉";
+                    setTimeout(() => { nutBam.innerText = "Gọi các bé ra nào! 🍖"; }, 2000);
+                })
+                .catch(error => {
+                    alert('Ối, các bé thú cưng đi lạc rồi! Hãy kiểm tra lại Node-RED.');
+                    nutBam.innerText = "Gọi các bé ra nào! 🍖";
+                });
+        }
+    </script>
+</body>
+</html>

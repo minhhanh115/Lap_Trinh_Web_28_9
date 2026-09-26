@@ -1,0 +1,5 @@
+msg.payload = {
+    "loi_chao": "Xin chào! Trả về từ Node-RED",
+    "danh_sach": ["Mèo", "Chó", "Chim"]
+};
+return msg;
