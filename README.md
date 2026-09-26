@@ -19,6 +19,7 @@ my_server/
 │           └── index.html        # Giao diện phụ
 └── nodered/
     └── flows.json                # Tệp JSON sao lưu luồng API của Node-RED
+```
 
 ## Phần 1: Triển khai hệ thống (Bài tập 1)
 
@@ -32,7 +33,8 @@ my_server/
 Hệ thống chạy 5 dịch vụ lõi thông qua file `docker-compose.yml`:
 1.  **Nginx:** Đóng vai trò Web Server phục vụ file tĩnh (HTML/CSS/JS) và Reverse Proxy định tuyến API.
 
- ``` nginx:
+ ``` text
+ nginx:
     image: nginx:latest
     container_name: nginx
     ports:
