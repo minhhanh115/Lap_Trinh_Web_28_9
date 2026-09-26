@@ -1,4 +1,4 @@
-# Báo cáo Bài tập Lập trình Web 28-9
+# Bài tập Lập trình Web 28-9
 
 **Sinh viên :** Nguyễn Minh Hạnh  
 **Msv:** K235480106023  
