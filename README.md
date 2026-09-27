@@ -118,11 +118,10 @@ networks:
 ```
 
 ### 3. Hai website với 2 domain khác nhau.
-# Hướng dẫn tạo 2 website với 2 domain khác nhau bằng Nginx + Docker
 
-## 1. Tạo cấu trúc thư mục `my-server`
+* **Tạo cấu trúc thư mục `my-server`**
 
-Mở terminal (WSL) và chạy các lệnh sau để tạo thư mục ngay trong Home của bạn:
+Mở terminal (WSL) và chạy các lệnh sau để tạo thư mục ngay trong Home :
 
 ```bash
 mkdir -p ~/my-server/nginx/conf.d
@@ -131,7 +130,7 @@ mkdir -p ~/my-server/nginx/html/haha.mhanh.id.vn
 cd ~/my-server
 ```
 
-## 2. Tạo giao diện cho trang HIHI
+* **Tạo giao diện cho trang HIHI**
 
 Sử dụng lệnh `nano` để tạo file HTML cho web HIHI:
 
@@ -139,7 +138,7 @@ Sử dụng lệnh `nano` để tạo file HTML cho web HIHI:
 nano nginx/html/hihi.mhanh.id.vn/index.html
 ```
 
-Dán bộ code giao diện phong cách **Xanh Tím Hiện Đại** vào:
+ **Code giao diện cho Web 1** 
 
 ```html
 <!DOCTYPE html>
@@ -171,7 +170,10 @@ Dán bộ code giao diện phong cách **Xanh Tím Hiện Đại** vào:
 
 Lưu lại (`Ctrl+O` → `Enter` → `Ctrl+X`).
 
-## 3. Tạo giao diện cho trang HAHA
+<img width="1920" height="1080" alt="Screenshot (390)" src="https://github.com/user-attachments/assets/a111b5db-b01b-4960-b6e3-ff607dc081f6" />
+
+
+* **Tạo giao diện cho trang HAHA**
 
 Tạo file HTML cho web HAHA:
 
@@ -179,7 +181,7 @@ Tạo file HTML cho web HAHA:
 nano nginx/html/haha.mhanh.id.vn/index.html
 ```
 
-Dán bộ code giao diện phong cách **Cam Đào Ấm Áp** vào:
+ **Code gao diện cho HAHA** 
 
 ```html
 <!DOCTYPE html>
@@ -209,11 +211,13 @@ Dán bộ code giao diện phong cách **Cam Đào Ấm Áp** vào:
 </html>
 ```
 
-## 4. Cấu hình Nginx
+<img width="1920" height="1080" alt="Screenshot (389)" src="https://github.com/user-attachments/assets/2e85bf87-e6a3-4e0d-a200-01553a85ffe7" />
+
+* **Cấu hình Nginx**
 
 > **Điểm mấu chốt để chạy 2 website với 2 domain khác nhau:** Nginx dùng cơ chế **virtual host** — mỗi domain có một file `.conf` riêng trong thư mục `conf.d`, với `server_name` khác nhau và `root` trỏ đến thư mục HTML riêng. Khi request đến, Nginx dựa vào header `Host` (tên domain) để chọn đúng file cấu hình và trả về đúng nội dung tương ứng.
 
-**Tạo cấu hình cho hihi:**
+* **Tạo cấu hình cho hihi:**
 
 ```bash
 nano nginx/conf.d/hihi.conf
@@ -231,7 +235,7 @@ server {
 }
 ```
 
-**Tạo cấu hình cho haha:**
+* **Tạo cấu hình cho haha:**
 
 ```bash
 nano nginx/conf.d/haha.conf
@@ -249,7 +253,7 @@ server {
 }
 ```
 
-## 5. Khởi chạy hệ thống
+* **Khởi chạy hệ thống**
 
 Nếu bạn chưa tạo file `docker-compose.yml` tại thư mục này, hãy tạo nó:
 
@@ -269,3 +273,6 @@ Cuối cùng, khởi động mọi thứ:
 docker-compose down
 docker-compose up -d
 ```
+
+<img width="1920" height="1080" alt="Screenshot (394)" src="https://github.com/user-attachments/assets/433fbb08-2d72-4331-849b-2e9bf644554a" />
+
