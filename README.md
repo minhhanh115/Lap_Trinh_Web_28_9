@@ -276,3 +276,234 @@ docker-compose up -d
 
 <img width="1920" height="1080" alt="Screenshot (394)" src="https://github.com/user-attachments/assets/433fbb08-2d72-4331-849b-2e9bf644554a" />
 
+# Bài tập 2
+
+## 1. Tạo API trên Node-RED
+
+Mở trình duyệt và truy cập vào giao diện quản lý của Node-RED tại `http://localhost:1880`.
+
+Kéo thả 3 node sau từ cột bên trái vào màn hình (workspace) và nối chúng lại theo thứ tự:
+
+```
+[http in]  -->  [function]  -->  [http response]
+```
+
+<img width="1920" height="1080" alt="Tạo API" src="https://github.com/user-attachments/assets/97bc3235-7178-49b7-acf2-917568dfc7c5" />
+
+
+### Cấu hình node `http in`
+
+- Nhấp đúp vào node.
+- **Method:** chọn `GET`.
+- **URL:** gõ `/api/co-ban`.
+- Nhấn **Done**.
+
+### 1.Cấu hình node `function` (Thuật toán tạo API)
+
+Nhấp đúp vào node và dán đoạn mã JavaScript sau vào ô code để tạo dữ liệu JSON trả về:
+
+```javascript
+msg.payload = {
+    "loi_chao": "Xin chào! Trả về từ Node-RED",
+    "danh_sach": ["Mèo", "Chó", "Chim"]
+};
+return msg;
+
+Nhấn **Done**.
+
+Cuối cùng, nhấn nút **Deploy** màu đỏ ở góc trên bên phải màn hình để API chính thức chạy.
+
+### 2.Cấu hình Nginx làm Reverse Proxy.
+
+Mở terminal WSL và chỉnh sửa file cấu hình Nginx của trang hihi:
+
+```bash
+nano ~/my_server/nginx/conf.d/hihi.conf
+```
+
+Thêm block `location /api/` vào cấu hình để Nginx biết đường "dẫn mối" những truy cập bắt đầu bằng `/api/` sang container Node-RED. File của bạn sẽ trông như thế này:
+
+```nginx
+server {
+    listen 80;
+    server_name hihi.mhanh.id.vn;
+
+    # Web tĩnh (HTML/CSS/JS)
+    location / {
+        root /usr/share/nginx/html/hihi.mhanh.id.vn;
+        index index.html;
+    }
+
+    # API - Chuyển tiếp sang Node-RED
+    location /api/ {
+        proxy_pass http://nodered:1880/api/;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+}
+```
+
+Lưu file và khởi động lại Nginx để nhận cấu hình mới:
+
+```bash
+cd ~/my_server
+docker compose restart nginx
+```
+
+### 3. Viết JS vào trang HTML để gọi API
+
+Chỉnh sửa file `index.html` của trang HIHI để thêm nút bấm, khu vực hiển thị dữ liệu và đoạn mã JavaScript Fetch API:
+
+```bash
+nano ~/my_server/nginx/html/hihi.mhanh.id.vn/index.html
+```
+
+Giao diện 
+```html
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thế Giới Thú Cưng</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        
+        .card {
+            background: #ffffff;
+            padding: 40px 30px;
+            border-radius: 24px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+
+        h2 {
+            color: #ff6b81;
+            margin-top: 0;
+            font-size: 28px;
+        }
+
+        .btn {
+            background-color: #1dd1a1;
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            font-size: 16px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: transform 0.2s, background-color 0.2s;
+            box-shadow: 0 4px 15px rgba(29, 209, 161, 0.4);
+        }
+        
+        .btn:hover {
+            background-color: #10ac84;
+            transform: scale(1.05);
+        }
+
+        #loi-chao {
+            color: #576574;
+            font-size: 18px;
+            margin: 20px 0;
+            font-style: italic;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        li {
+            background: #f1f2f6;
+            margin: 12px 0;
+            padding: 15px;
+            border-radius: 16px;
+            font-size: 20px;
+            color: #2f3542;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            transition: transform 0.2s;
+        }
+        
+        li:hover {
+            transform: translateY(-3px);
+            background: #dfe4ea;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2>🐾 Thế Giới Thú Cưng 🐾</h2>
+        
+        <button class="btn" onclick="goiAPI()" id="nut-bam">Gọi các bé ra nào! 🍖</button>
+        
+        <div id="loi-chao"></div>
+        <ul id="danh-sach"></ul>
+    </div>
+
+    <script>
+        function chonBieuTuong(ten) {
+            const chuoiThuong = ten.toLowerCase();
+            if (chuoiThuong.includes("mèo")) return "🐱";
+            if (chuoiThuong.includes("chó")) return "🐶";
+            if (chuoiThuong.includes("chim")) return "🐦";
+            return "🐾";
+        }
+
+        function goiAPI() {
+            const nutBam = document.getElementById('nut-bam');
+            nutBam.innerText = "Đang tìm kiếm... 🔍";
+
+            fetch('/api/co-ban')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('loi-chao').innerText = "✨ " + data.loi_chao + " ✨";
+                    
+                    let htmlDanhSach = '';
+                    for (let i = 0; i < data.danh_sach.length; i++) {
+                        let tenConVat = data.danh_sach[i];
+                        let icon = chonBieuTuong(tenConVat);
+                        htmlDanhSach += '<li>' + icon + ' ' + tenConVat + '</li>';
+                    }
+                    document.getElementById('danh-sach').innerHTML = htmlDanhSach;
+
+                    nutBam.innerText = "Đã tìm thấy! 🎉";
+                    setTimeout(() => { nutBam.innerText = "Gọi các bé ra nào! 🍖"; }, 2000);
+                })
+                .catch(error => {
+                    alert('Ối, các bé thú cưng đi lạc rồi! Hãy kiểm tra lại Node-RED.');
+                    nutBam.innerText = "Gọi các bé ra nào! 🍖";
+                });
+        }
+    </script>
+</body>
+</html>
+```
+
+## 4. Kiểm tra kết quả
+
+Chạy lệnh `curl` sau để kiểm tra web đã gọi API thành công chưa:
+
+```bash
+curl -H "Host: hihi.mhanh.id.vn" http://localhost/api/thongke
+```
+<img width="1920" height="1080" alt="Gọi API" src="https://github.com/user-attachments/assets/ef2a0d5b-8f12-4588-99ed-e5334b836539" />
+
+<img width="1920" height="1080" alt="KQ gọi API" src="https://github.com/user-attachments/assets/4fbaa752-4b8a-4722-ad00-3492cdc25c8f" />
+
+
